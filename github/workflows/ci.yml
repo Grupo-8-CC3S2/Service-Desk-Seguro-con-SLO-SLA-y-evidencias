@@ -20,13 +20,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install black ruff flake8 mypy pytest
-      - name: Lint (ruff/flake8) estilo analisis estatico
+      - name: Lint (ruff/flake8) estilo sintaxis analisis estatico
         run: |
           ruff check .
           flake8 .
-      - name: Format check (black) formateo correcto
+      - name: Format check (black) formato correcto a reglas PEP8
         run: black --check .
-      - name: Type check (mypy) anotaciones python 
+      - name: Type check (mypy) errores tipo string en lugar de int 
         run: mypy .
       - name: Ejecuta tests
         run: pytest -q

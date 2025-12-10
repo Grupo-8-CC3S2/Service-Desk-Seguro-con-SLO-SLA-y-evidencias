@@ -22,7 +22,7 @@ def establecer_conexion():
     finally:
         conexion.close()
 
-def init_db(): 
+def iniciar_bd(): 
     with establecer_conexion() as conn:
         with conn.cursor() as cursor:
             cursor.execute("""
