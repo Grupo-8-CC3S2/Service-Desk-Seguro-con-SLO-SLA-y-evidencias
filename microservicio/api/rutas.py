@@ -1,20 +1,21 @@
 from fastapi import APIRouter , HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List,Optional
+
+from microservicio.servicios import logicanegocio
+
 ruta = APIRouter(
     prefix="/api/tickets",
     tags=["tickets"])
 
 class Entrada(BaseModel):
-    estado:str = Field(...,)
-    prioridad:str = Field(...,)
-    fecha:str = Field(...,)
+    descripcion: Optional[str] = Field(None, example="Falla en login")
+    prioridad: str = Field(..., example="alta")
+    estado: str = Field(..., example="pendiente")
+    fecha: Optional[str] = Field(None, example="2025-12-09T18:00:00")
 
 class Salida(BaseModel):
-    id:int = Field()
-    descripcion: Optional[str]= Field()
-    prioridad:Optional[str] = Field()
-    estado: Optional[str]= Field()
+    id: int = Field(..., description="ID único del ticket")
 
 @ruta.post(
     "/",
@@ -22,5 +23,26 @@ class Salida(BaseModel):
     status_code = status.HTTP_201_CREATED,
     summary = "crear un ticket "
 ) 
-def crear_ticket(t):
-    print()
+def crear(ticket:Entrada):
+    try:
+        creado = logicanegocio.crear( ticket.descripcion, ticket.prioridad, ticket.estado, ticket.fecha)
+    except Exception as e:
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = str(e)
+        )
+    
+@ruta.get(
+    "/",
+    response_model = List[Salida],
+    status_code = status.HTTP_200_OK,
+    summary = "lista los tickets"
+)
+def listar():
+    try:
+        return logicanegocio.listar()
+    except Exception as e:
+        raise HTTPException(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail = "error al listar"
+        )
