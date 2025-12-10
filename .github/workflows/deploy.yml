@@ -1,0 +1,35 @@
+name: Deploy + Smoke Test
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build and run containers
+        run: |
+          docker compose up -d --build
+          sleep 5  # espera a que el servicio esté listo
+
+      - name: Smoke test /health
+        run: |
+          curl -sf http://127.0.0.1:8000/health || (echo "Smoke test failed" && exit 1)
+
+      - name: Tear down Compose
+        if: always()
+        run: docker compose down -v
+
+      - name: Save logs/evidence
+        run: |
+          mkdir -p .evidence
+          echo "Smoke test OK" > .evidence/deploy-log.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifacts
+          path: .evidence/**
