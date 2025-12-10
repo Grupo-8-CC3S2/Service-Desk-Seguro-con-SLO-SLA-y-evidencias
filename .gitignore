@@ -1,0 +1,14 @@
+venv_pc5/
+**/__pycache__/
+**/__init__.py
+*.pyc
+*.pyo
+*.pyd s
+*.log
+*.sqlite3
+*.dockerignore
+docker-compose.override.yml
+.coverage
+htmlcov/
+LICENSE
+act_Linux_x86_64.tar.gz
