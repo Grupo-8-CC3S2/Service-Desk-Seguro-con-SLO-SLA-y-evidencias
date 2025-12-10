@@ -1,0 +1,47 @@
+name: Build, Scan & SBOM
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  build_scan_sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit semgrep pip-audit syft grype
+
+      - name: Build Docker image
+        run: docker build -t microservicio:dev -f microservicio/api/Dockerfile .
+
+      - name: Scan image with Trivy/Grype
+        run: grype microservicio:dev -o json > .evidence/grype-image.json || true
+
+      - name: Generate SBOM (image + project)
+        run: |
+          mkdir -p .evidence
+          syft microservicio:dev -o json > .evidence/sbom-image.json || true
+          syft packages dir:. -o json > .evidence/sbom-project.json || true
+
+      - name: SAST (bandit)
+        run: bandit -r microservicio -f json -o .evidence/bandit.json || true
+
+      - name: SAST (semgrep)
+        run: semgrep --config .semgrep.yml --error --json --output .evidence/semgrep.json || true
+
+      - name: SCA (pip-audit)
+        run: pip-audit -r requirements.txt -f json -o .evidence/pip-audit.json || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_scan_sbom-artifacts
+          path: .evidence/**
