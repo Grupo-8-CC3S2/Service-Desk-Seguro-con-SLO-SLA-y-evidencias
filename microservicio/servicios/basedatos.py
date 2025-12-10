@@ -6,11 +6,11 @@ import os
 
 def config():
     return {
-        'host': os.getenv('DB_HOST', 'localhost'),
-        'database': os.getenv('DB_NAME', 'tickets_db'),
-        'user': os.getenv('DB_USER', 'postgres'),
-        'password': os.getenv('DB_PASS', 'postgres'),
-        'port': os.getenv('DB_PORT', '5432')
+        'host': os.getenv('HOST_BD', 'localhost'),
+        'database': os.getenv('NOMBRE_BD', 'tickets_db'),
+        'user': os.getenv('USUARIO_BD', 'postgres'),
+        'password': os.getenv('CONTRASENA_BD', 'postgres'),
+        'port': os.getenv('PORT_BD', '5432')
     }
 
 @contextmanager
