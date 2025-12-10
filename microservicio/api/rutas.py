@@ -7,7 +7,7 @@ from microservicio.servicios import logicanegocio
 ruta = APIRouter(
     prefix="/api/tickets",
     tags=["tickets"])
-aaaa
+
 class Entrada(BaseModel):
     descripcion: Optional[str] = Field(None, example="Falla en login")
     prioridad: str = Field(..., example="alta")
