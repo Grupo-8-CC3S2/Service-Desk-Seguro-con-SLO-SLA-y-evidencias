@@ -10,3 +10,5 @@ venv_pc5/
 docker-compose.override.yml
 .coverage
 htmlcov/
+LICENSE
+act_Linux_x86_64.tar.gz
