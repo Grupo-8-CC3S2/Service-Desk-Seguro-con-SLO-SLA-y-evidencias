@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   db:
     image: postgres:16-alpine
@@ -22,7 +21,7 @@ services:
   api:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: microservicio/api/Dockerfile
     container_name: pc5_api
     depends_on:
       db:
@@ -34,7 +33,11 @@ services:
       DB_HOST: db
       DB_PORT: 5432
     ports:
-      - "8000:8000"
+      - "8001:8000"
     networks:
       - red-pc5
     restart: unless-stopped
+networks:
+  red-pc5: 
+volumes:
+  db_data:
