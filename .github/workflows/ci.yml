@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  chequeo-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clona repo actual en VM temporal de Git
+        uses: actions/checkout@v4
+      - name: Descarga python en la VM 
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instala dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black ruff flake8 mypy pytest
+      - name: Lint (ruff/flake8) estilo sintaxis analisis estatico
+        run: |
+          ruff check .
+          flake8 .
+      - name: Format check (black) formato correcto a reglas PEP8
+        run: black --check .
+      - name: Type check (mypy) errores tipo string en lugar de int 
+        run: mypy .
+      - name: Ejecuta tests
+        run: pytest -q

@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pc5_db
+    environment:
+      POSTGRES_USER: ${USUARIO_BD}
+      POSTGRES_PASSWORD: ${CONTRASENA_BD}
+      POSTGRES_DB: ${NOMBRE_BD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - red-pc5
+    restart:  unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USUARIO_BD} -d ${NOMBRE_BD}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  api:
+    build: 
+      context: .
+      dockerfile: microservicio/api/Dockerfile
+    container_name: pc5_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_USER: ${USUARIO_BD}
+      DB_PASS: ${CONTRASENA_BD}
+      DB_NAME: ${NOMBRE_BD}
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "8001:8000"
+    networks:
+      - red-pc5
+    restart: unless-stopped
+networks:
+  red-pc5: 
+volumes:
+  db_data:
