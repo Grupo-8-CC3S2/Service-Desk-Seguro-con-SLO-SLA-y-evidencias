@@ -22,12 +22,14 @@ jobs:
       - name: Build Docker image
         run: docker build -t microservicio:dev -f microservicio/api/Dockerfile .
 
-      - name: Scan image with Trivy/Grype
+      - name: Prepare evidence folder
+        run: mkdir -p .evidence
+
+      - name: Scan image with Grype
         run: grype microservicio:dev -o json > .evidence/grype-image.json || true
 
       - name: Generate SBOM (image + project)
         run: |
-          mkdir -p .evidence
           syft microservicio:dev -o json > .evidence/sbom-image.json || true
           syft packages dir:. -o json > .evidence/sbom-project.json || true
 
